@@ -24,8 +24,7 @@ end
 
 desc "genrates documentation"
 Rake::RDocTask.new do |rdoc|
-  rdoc.rdoc_files.include( "README", "lib/" )
-  rdoc.main     = "README"
+  rdoc.rdoc_files.include( "lib/" )
   rdoc.rdoc_dir = "doc/html"
   rdoc.title    = "Prawn Documentation"
 end     
@@ -53,8 +52,7 @@ spec = Gem::Specification.new do |spec|
   spec.test_files = Dir[ "test/*_test.rb" ]
   spec.has_rdoc = true
   spec.extra_rdoc_files = %w{README}
-  spec.rdoc_options << '--title' << 'Prawn Documentation' <<
-                       '--main'  << 'README' << '-q'
+  spec.rdoc_options << '--title' << 'Prawn Documentation'
   spec.author = "Gregory Brown"
   spec.email = "  gregory.t.brown@gmail.com"
   spec.rubyforge_project = "prawn"
