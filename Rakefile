@@ -51,7 +51,6 @@ spec = Gem::Specification.new do |spec|
   
   spec.test_files = Dir[ "test/*_test.rb" ]
   spec.has_rdoc = true
-  spec.extra_rdoc_files = %w{README}
   spec.rdoc_options << '--title' << 'Prawn Documentation'
   spec.author = "Gregory Brown"
   spec.email = "  gregory.t.brown@gmail.com"
