@@ -14,6 +14,6 @@ module Prawn
  end
 
  module Layout
-
+   VERSION = "0.0.99"
  end
 end
