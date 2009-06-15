@@ -10,6 +10,25 @@ describe "A table's width" do
 
     table.width.should == 300
   end
+  it "should calculate unspecified column widths even " +
+     "with colspan cells declared" do
+    pdf = Prawn::Document.new
+    hpad, fs = 3, 5
+    columns  = 3
+
+    data = [ [ { :text => 'foo', :colspan => 2 }, "foobar" ],
+             [ "foo", "foo", "foo" ] ]
+    table = Prawn::Table.new( data, pdf,
+      :horizontal_padding => hpad,
+      :font_size => fs )
+
+    col0_width = pdf.width_of("foo",    :size => fs) # cell 1, 0
+    col1_width = pdf.width_of("foo",    :size => fs) # cell 1, 1
+    col2_width = pdf.width_of("foobar", :size => fs) # cell 0, 1 (at col 2)
+
+    table.width.should == col0_width.ceil + col1_width.ceil +
+                          col2_width.ceil + 2*columns*hpad
+  end
 
   it "should calculate unspecified column widths as "+
      "(max(string_width).ceil + 2*horizontal_padding)" do
@@ -19,8 +38,8 @@ describe "A table's width" do
     table = Prawn::Table.new( [%w[ foo b ], %w[d foobar]], pdf,
       :horizontal_padding => hpad, :font_size => fs)
 
-    col0_width = pdf.font.width_of("foo", :size => fs)
-    col1_width = pdf.font.width_of("foobar", :size => fs)
+    col0_width = pdf.width_of("foo", :size => fs)
+    col1_width = pdf.width_of("foobar", :size => fs)
 
     table.width.should == col0_width.ceil + col1_width.ceil + 2*columns*hpad
   end
@@ -33,8 +52,8 @@ describe "A table's width" do
     stretchy_columns = 2
     
     col0_width = 50
-    col1_width = pdf.font.width_of("foo", :size => fs)
-    col2_width = pdf.font.width_of("foobar", :size => fs)
+    col1_width = pdf.width_of("foo", :size => fs)
+    col2_width = pdf.width_of("foobar", :size => fs)
     col3_width = 150
 
     table = Prawn::Table.new( [%w[snake foo b apple], 
@@ -54,7 +73,9 @@ describe "A table's width" do
     expected_width = pdf.margin_box.width
 
     data = [
-      ['This is a column with a lot of text that should comfortably exceed the width of a normal document margin_box width', 'Some more text', 'and then some more', 'Just a bit more to be extra sure']
+      ['This is a column with a lot of text that should comfortably exceed '+
+      'the width of a normal document margin_box width', 'Some more text', 
+      'and then some more', 'Just a bit more to be extra sure']
     ]
 
     table = Prawn::Table.new(data, pdf)
@@ -69,8 +90,11 @@ describe "A table's width" do
     expected_width = pdf.margin_box.width
 
     data = [
-      ['This is a column with a lot of text that should comfortably exceed the width of a normal document margin_box width', 'Some more text', 'and then some more', 'Just a bit more to be extra sure']
+      ['This is a column with a lot of text that should comfortably exceed '+
+      'the width of a normal document margin_box width', 'Some more text', 
+      'and then some more', 'Just a bit more to be extra sure']
     ]
+
 
     table = Prawn::Table.new(data, pdf, :column_widths => { 1 => 100 })
 
@@ -98,7 +122,9 @@ describe "A table's width" do
     expected_width = 400
 
     data = [
-      ['This is a column with a lot of text that should comfortably exceed the width of a normal document margin_box width', 'Some more text', 'and then some more', 'Just a bit more to be extra sure']
+      ['This is a column with a lot of text that should comfortably exceed '+
+      'the width of a normal document margin_box width', 'Some more text', 
+      'and then some more', 'Just a bit more to be extra sure']
     ]
 
     table = Prawn::Table.new(data, pdf, :width => expected_width)
@@ -113,7 +139,9 @@ describe "A table's width" do
     expected_width = 400
 
     data = [
-      ['This is a column with a lot of text that should comfortably exceed the width of a normal document margin_box width', 'Some more text', 'and then some more', 'Just a bit more to be extra sure']
+      ['This is a column with a lot of text that should comfortably exceed '+
+      'the width of a normal document margin_box width', 'Some more text', 
+      'and then some more', 'Just a bit more to be extra sure']
     ]
 
     table = Prawn::Table.new(data, pdf, :column_widths => { 1 => 100 }, :width => expected_width)

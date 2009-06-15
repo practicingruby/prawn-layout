@@ -107,7 +107,6 @@ module Prawn
     # <tt>:column_widths:</tt> A hash of indices and widths in PDF points.  E.g. <tt>{ 0 => 50, 1 => 100 }</tt>
     # <tt>:row_colors</tt>:: An array of row background colors which are used cyclicly.   
     # <tt>:align</tt>:: Alignment of text in columns, for entire table (<tt>:center</tt>) or by column (<tt>{ 0 => :left, 1 => :center}</tt>)
-    # <tt>:minimum_rows</tt>:: The minimum rows to display on a page, including header.
     #
     # Row colors are specified as html encoded values, e.g.
     # ["ffffff","aaaaaa","ccaaff"].  You can also specify 
@@ -190,15 +189,28 @@ module Prawn
     def calculate_column_widths(manual_widths=nil, width=nil)
       @column_widths = [0] * @data[0].inject(0){ |acc, e| 
         acc += (e.is_a?(Hash) && e.has_key?(:colspan)) ? e[:colspan] : 1 }
+
       renderable_data.each do |row|
+        colspan = 0
         row.each_with_index do |cell,i|
-          length = cell.to_s.lines.map { |e| 
-            @document.font.width_of(e, :size => C(:font_size)) }.max.to_f +
+          cell_text = cell.is_a?(Hash) ? cell[:text] : cell.to_s
+          length = cell_text.lines.map { |e|
+            @document.width_of(e, :size => C(:font_size)) }.max.to_f +
               2*C(:horizontal_padding)
-          @column_widths[i] = length.ceil if length > @column_widths[i]
+          if length > @column_widths[i+colspan]
+            @column_widths[i+colspan] = length.ceil
+          end
+
+          if cell.is_a?(Hash) && cell[:colspan]
+            colspan += cell[:colspan] - 1
+          end
         end
       end  
 
+      fit_within_bounds(manual_widths, width)
+    end
+
+    def fit_within_bounds(manual_widths, width)
       manual_width = 0
       manual_widths.each { |k,v| 
         @column_widths[k] = v; manual_width += v } if manual_widths           
@@ -226,6 +238,7 @@ module Prawn
         }
       end
     end
+
 
     def renderable_data
       C(:headers) ? [C(:headers)] + @data : @data
@@ -270,15 +283,18 @@ module Prawn
                 @column_widths[col_index]
               end
               
-              c << Prawn::Table::Cell.new(
-                :document => @document, 
+              cell_options = {:document => @document, 
                 :text     => text,
                 :width    => width,
                 :horizontal_padding => C(:horizontal_padding),
                 :vertical_padding   => C(:vertical_padding),
                 :border_width       => C(:border_width),
                 :border_style       => :sides,
-                :align              => align ) 
+                :align              => align}
+              cell_options[:font_style] = e[:font_style] if e.is_a?(Hash) && e.has_key?(:font_style)
+              cell_options[:font_size] = e[:font_size] if e.is_a?(Hash) && e.has_key?(:font_size)
+
+              c << Prawn::Table::Cell.new(cell_options)
             end
             
             col_index += (e.is_a?(Hash) && e.has_key?(:colspan)) ? e[:colspan] : 1
