@@ -1,1 +1,7 @@
-More to come
+prawn-layout has been merged into http://github.com/sandal/prawn as of
+2010.02.25.  The stable branch of 0.8.x is still hosted here, but after Prawn
+0.9 is released, the issue tracker will be closed and development will cease on
+this repository.
+
+If you want to track the bleeding edge, head over to
+http://github.com/sandal/prawn
